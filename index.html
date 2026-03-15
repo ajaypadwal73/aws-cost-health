@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AWS Cost Health — Billing visibility in Google Sheets</title>
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --aws-orange: #FF9900;
+      --aws-dark:   #232F3E;
+      --aws-mid:    #37475A;
+      --ink:        #0d1117;
+      --muted:      #57606a;
+      --surface:    #f6f8fa;
+      --border:     #d0d7de;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; font-size: 16px; color: var(--ink); background: #fff; line-height: 1.6; }
+
+    /* NAV */
+    nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; height: 60px; background: rgba(35,47,62,0.97); backdrop-filter: blur(12px); }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo img { width: 28px; height: 28px; border-radius: 6px; }
+    .nav-logo span { font-family: 'DM Serif Display', serif; font-size: 18px; color: #fff; }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a { font-size: 14px; font-weight: 500; color: rgba(255,255,255,.7); text-decoration: none; transition: color .2s; }
+    .nav-links a:hover { color: var(--aws-orange); }
+    .nav-cta { font-size: 13px; font-weight: 600; padding: 8px 18px; background: var(--aws-orange); color: var(--aws-dark); border-radius: 6px; text-decoration: none; transition: opacity .2s; }
+    .nav-cta:hover { opacity: .85; }
+
+    /* HERO */
+    .hero { max-width: 860px; margin: 0 auto; padding: 100px 40px 80px; text-align: center; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: #fff8e7; color: #7d4e00; font-size: 12px; font-weight: 600; letter-spacing: .04em; padding: 4px 12px; border-radius: 20px; margin-bottom: 28px; border: 1px solid #ffe0a0; }
+    .hero h1 { font-family: 'DM Serif Display', serif; font-size: clamp(36px, 6vw, 56px); line-height: 1.12; letter-spacing: -.02em; margin-bottom: 24px; }
+    .hero h1 em { font-style: italic; color: var(--aws-orange); }
+    .hero p { font-size: 18px; color: var(--muted); max-width: 540px; margin: 0 auto 40px; font-weight: 300; }
+    .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary { display: inline-flex; align-items: center; gap: 8px; background: var(--aws-orange); color: var(--aws-dark); font-size: 15px; font-weight: 700; padding: 13px 28px; border-radius: 8px; text-decoration: none; transition: opacity .15s; }
+    .btn-primary:hover { opacity: .85; }
+    .btn-secondary { display: inline-flex; align-items: center; gap: 8px; background: #fff; color: var(--ink); font-size: 15px; font-weight: 500; padding: 13px 28px; border-radius: 8px; border: 1px solid var(--border); text-decoration: none; transition: background .15s; }
+    .btn-secondary:hover { background: var(--surface); }
+
+    /* SHEET PREVIEW */
+    .preview { max-width: 980px; margin: 0 auto 80px; padding: 0 40px; }
+    .sheet-mock { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,.1); }
+    .sheet-header { background: var(--aws-dark); padding: 10px 16px; display: flex; gap: 6px; align-items: center; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; } .dot-y { background: #ffbd2e; } .dot-g { background: #28c840; }
+    .sheet-tab { margin-left: 12px; font-size: 11px; color: rgba(255,255,255,.6); font-family: 'DM Sans', sans-serif; background: rgba(255,255,255,.1); padding: 2px 10px; border-radius: 4px 4px 0 0; }
+    .sheet-tab.active { background: var(--aws-orange); color: var(--aws-dark); font-weight: 600; }
+    .sheet-body { background: #fff; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; font-family: 'DM Sans', sans-serif; }
+    .th-service { background: var(--aws-dark); color: var(--aws-orange); font-weight: 700; font-size: 11px; padding: 8px 14px; text-align: left; border-right: 1px solid #444; white-space: nowrap; }
+    .th-day { background: var(--aws-orange); color: var(--aws-dark); font-weight: 700; font-size: 11px; padding: 8px 10px; text-align: center; border-right: 1px solid #e8a000; white-space: nowrap; }
+    .th-total { background: var(--aws-dark); color: #fff; font-weight: 700; font-size: 11px; padding: 8px 12px; text-align: center; }
+    td { padding: 7px 12px; border-bottom: 1px solid #f0f0f0; border-right: 1px solid #f0f0f0; white-space: nowrap; text-align: right; }
+    td.service-name { text-align: left; font-weight: 600; color: var(--aws-dark); }
+    tr:nth-child(even) td { background: #fafafa; }
+    .td-high { background: #ffe0e0 !important; color: #c7222f; font-weight: 700; }
+    .td-med  { background: #fff8c5 !important; color: #9a6700; }
+    .td-low  { background: #e6f4ea !important; color: #137333; }
+    .td-total { background: #fff8e7 !important; font-weight: 700; color: var(--aws-dark); }
+    .tr-total td { background: var(--aws-dark) !important; color: var(--aws-orange) !important; font-weight: 700; }
+
+    /* FEATURES */
+    .features { background: var(--surface); padding: 80px 40px; }
+    .features-inner { max-width: 960px; margin: 0 auto; }
+    .section-label { font-size: 12px; font-weight: 600; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; margin-bottom: 12px; }
+    .section-title { font-family: 'DM Serif Display', serif; font-size: clamp(28px, 4vw, 40px); margin-bottom: 48px; line-height: 1.2; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+    .feature-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 28px; transition: box-shadow .2s; }
+    .feature-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.07); }
+    .feature-icon { font-size: 28px; margin-bottom: 14px; }
+    .feature-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+    .feature-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+    /* HOW */
+    .how-section { padding: 80px 40px; }
+    .how-inner { max-width: 860px; margin: 0 auto; }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; margin-top: 48px; }
+    .step { text-align: center; }
+    .step-num { width: 44px; height: 44px; border-radius: 50%; background: var(--aws-dark); color: var(--aws-orange); font-weight: 700; font-size: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .step h4 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+    .step p { font-size: 13px; color: var(--muted); }
+
+    /* METRICS */
+    .metrics-section { background: var(--aws-dark); color: #fff; padding: 72px 40px; }
+    .metrics-inner { max-width: 860px; margin: 0 auto; text-align: center; }
+    .metrics-inner h2 { font-family: 'DM Serif Display', serif; font-size: clamp(28px, 4vw, 40px); margin-bottom: 48px; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 32px; }
+    .metric-val { font-size: 44px; font-weight: 700; font-family: 'DM Serif Display', serif; color: var(--aws-orange); }
+    .metric-label { font-size: 13px; color: rgba(255,255,255,.55); margin-top: 4px; }
+
+    /* FOOTER */
+    footer { background: var(--aws-dark); border-top: 1px solid #37475A; padding: 32px 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; font-size: 13px; color: rgba(255,255,255,.5); }
+    footer a { color: rgba(255,255,255,.5); text-decoration: none; }
+    footer a:hover { color: var(--aws-orange); }
+    .footer-links { display: flex; gap: 24px; }
+
+    @media (max-width: 600px) {
+      nav { padding: 0 20px; } .nav-links { display: none; }
+      .hero { padding: 60px 20px 48px; }
+      .preview { padding: 0 16px; }
+      .features, .how-section, .metrics-section { padding: 60px 20px; }
+      footer { padding: 24px 20px; flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="icon.png" alt="AWS Cost Health">
+    <span>AWS Cost Health</span>
+  </a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how">How it works</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="tos.html">Terms</a>
+  </div>
+  <a class="nav-cta" href="https://workspace.google.com/marketplace" target="_blank">Install Free</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge">💰 Google Sheets Add-on</div>
+  <h1>Your AWS bill,<br><em>inside Google Sheets</em></h1>
+  <p>Daily cost breakdowns by service, monthly trends, and automatic anomaly detection — synced straight into your spreadsheet.</p>
+  <div class="hero-actions">
+    <a class="btn-primary" href="https://workspace.google.com/marketplace" target="_blank">Install Free</a>
+    <a class="btn-secondary" href="#how">See how it works →</a>
+  </div>
+</section>
+
+<div class="preview">
+  <div class="sheet-mock">
+    <div class="sheet-header">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="sheet-tab active">Mar 2026</span>
+      <span class="sheet-tab">Cost by Service</span>
+    </div>
+    <div class="sheet-body">
+      <table>
+        <thead>
+          <tr>
+            <th class="th-service">Service</th>
+            <th class="th-day">1</th>
+            <th class="th-day">2</th>
+            <th class="th-day">3</th>
+            <th class="th-day">4</th>
+            <th class="th-day">5</th>
+            <th class="th-day">...</th>
+            <th class="th-total">Total</th>
+            <th class="th-total">Avg/Day</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="service-name">Amazon EC2</td><td>$42.10</td><td>$40.80</td><td>$45.20</td><td>$41.50</td><td>$43.00</td><td class="td-med">...</td><td class="td-total td-high">$1,320</td><td class="td-total">$42.58</td></tr>
+          <tr><td class="service-name">Amazon RDS</td><td>$28.50</td><td>$28.50</td><td>$28.50</td><td>$28.50</td><td>$28.50</td><td>...</td><td class="td-total td-med">$885</td><td class="td-total">$28.50</td></tr>
+          <tr><td class="service-name">AWS Lambda</td><td>$0.42</td><td>$0.38</td><td>$0.51</td><td>$0.44</td><td>$0.39</td><td>...</td><td class="td-total td-low">$13.20</td><td class="td-total">$0.43</td></tr>
+          <tr><td class="service-name">Amazon S3</td><td>$1.54</td><td>$1.62</td><td>$1.48</td><td>$1.55</td><td>$1.60</td><td>...</td><td class="td-total td-low">$48.10</td><td class="td-total">$1.55</td></tr>
+          <tr class="tr-total"><td>Total</td><td>$72.56</td><td>$71.30</td><td>$75.69</td><td>$71.99</td><td>$73.49</td><td>...</td><td>$2,266</td><td>$73.10</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<section class="features" id="features">
+  <div class="features-inner">
+    <div class="section-label">What you get</div>
+    <div class="section-title">Full AWS cost visibility,<br>zero dashboards to maintain.</div>
+    <div class="features-grid">
+      <div class="feature-card"><div class="feature-icon">📅</div><h3>Daily Breakdown</h3><p>One tab per month with daily spend per service. See exactly which day costs spiked and why.</p></div>
+      <div class="feature-card"><div class="feature-icon">📊</div><h3>Monthly Trend Matrix</h3><p>Master summary tab: services as rows, months as columns. 12 months of history in one view.</p></div>
+      <div class="feature-card"><div class="feature-icon">📈</div><h3>Trend Arrows</h3><p>Each service gets a 📈📉➡️ trend indicator comparing the last two months automatically.</p></div>
+      <div class="feature-card"><div class="feature-icon">🎨</div><h3>Color Coded</h3><p>Red for high spend, yellow for medium, green for low. Anomalies jump out instantly.</p></div>
+      <div class="feature-card"><div class="feature-icon">🗂️</div><h3>Auto Monthly Tabs</h3><p>Each sync creates or updates the current month's tab. History is never overwritten.</p></div>
+      <div class="feature-card"><div class="feature-icon">🔒</div><h3>Secure & Private</h3><p>Your AWS credentials are stored in Google's encrypted storage. Never sent to external servers.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="how-section" id="how">
+  <div class="how-inner">
+    <div class="section-label">Setup in 2 minutes</div>
+    <div class="section-title">How it works</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><h4>Install the Add-on</h4><p>Install from Google Workspace Marketplace into any Google Sheet.</p></div>
+      <div class="step"><div class="step-num">2</div><h4>Enter AWS Credentials</h4><p>Paste your AWS Access Key ID and Secret. Only <code>ce:GetCostAndUsage</code> permission needed.</p></div>
+      <div class="step"><div class="step-num">3</div><h4>Hit Sync Now</h4><p>Daily cost data fetched from AWS Cost Explorer and written to your sheet instantly.</p></div>
+      <div class="step"><div class="step-num">4</div><h4>New month, new tab</h4><p>Each month gets its own tab automatically. Your history builds up over time.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="metrics-section">
+  <div class="metrics-inner">
+    <h2>Know your AWS spend before your bill arrives</h2>
+    <div class="metrics-grid">
+      <div><div class="metric-val">12mo</div><div class="metric-label">Cost history</div></div>
+      <div><div class="metric-val">Daily</div><div class="metric-label">Granularity</div></div>
+      <div><div class="metric-val">1</div><div class="metric-label">IAM permission needed</div></div>
+      <div><div class="metric-val">$0</div><div class="metric-label">Add-on cost</div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© 2025 AWS Cost Health. Built by <a href="https://github.com/ajaypadwal73">@ajaypadwal73</a>.</span>
+  <div class="footer-links">
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="tos.html">Terms of Service</a>
+    <a href="mailto:ajaypadwal73@gmail.com">Contact</a>
+  </div>
+</footer>
+
+</body>
+</html>

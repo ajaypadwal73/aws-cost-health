@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of Service — AWS Cost Health</title>
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --aws-orange: #FF9900; --aws-dark: #232F3E; --muted: #57606a; --border: #d0d7de; }
+    body { font-family: 'DM Sans', sans-serif; font-size: 16px; color: #0d1117; background: #fff; line-height: 1.7; }
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 0 40px; height: 60px; background: var(--aws-dark); }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo img { width: 26px; height: 26px; border-radius: 5px; }
+    .nav-logo span { font-family: 'DM Serif Display', serif; font-size: 17px; color: #fff; }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-links a { font-size: 14px; color: rgba(255,255,255,.7); text-decoration: none; }
+    .nav-links a:hover { color: var(--aws-orange); }
+    .container { max-width: 760px; margin: 0 auto; padding: 60px 40px 100px; }
+    .page-label { font-size: 12px; font-weight: 600; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; margin-bottom: 12px; }
+    h1 { font-family: 'DM Serif Display', serif; font-size: 40px; margin-bottom: 8px; }
+    .updated { font-size: 14px; color: var(--muted); margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+    h2 { font-size: 20px; font-weight: 600; margin: 40px 0 12px; }
+    p { margin-bottom: 16px; color: #24292f; }
+    ul { padding-left: 24px; margin-bottom: 16px; }
+    li { margin-bottom: 8px; color: #24292f; }
+    a { color: var(--aws-orange); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    footer { background: var(--aws-dark); padding: 32px 40px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; font-size: 13px; color: rgba(255,255,255,.5); }
+    footer a { color: rgba(255,255,255,.5); text-decoration: none; }
+    footer a:hover { color: var(--aws-orange); }
+    @media (max-width: 600px) { nav { padding: 0 20px; } .nav-links { display: none; } .container { padding: 40px 20px 80px; } footer { padding: 24px 20px; flex-direction: column; } }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="icon.png" alt="AWS Cost Health">
+    <span>AWS Cost Health</span>
+  </a>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="mailto:ajaypadwal73@gmail.com">Contact</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-label">Legal</div>
+  <h1>Terms of Service</h1>
+  <p class="updated">Last updated: March 15, 2025</p>
+
+  <p>These Terms of Service ("Terms") govern your use of the <strong>AWS Cost Health</strong> Google Sheets Add-on ("the Service") provided by AWS Cost Health ("we", "us", "our").</p>
+
+  <h2>1. Acceptance of Terms</h2>
+  <p>By installing and using the Add-on, you agree to be bound by these Terms. If you do not agree, do not install or use the Add-on.</p>
+
+  <h2>2. Description of Service</h2>
+  <p>AWS Cost Health is a Google Sheets Editor Add-on that connects to the AWS Cost Explorer API to fetch and display billing data including daily spend by service, monthly totals, and historical cost trends.</p>
+
+  <h2>3. Requirements</h2>
+  <ul>
+    <li>A Google account with access to Google Sheets</li>
+    <li>An AWS account with an IAM user or role that has <code>ce:GetCostAndUsage</code> permission</li>
+    <li>AWS Cost Explorer must be enabled in your AWS account (may incur a $0.01 per API call charge from AWS)</li>
+  </ul>
+
+  <h2>4. Your Responsibilities</h2>
+  <ul>
+    <li>You are responsible for keeping your AWS credentials secure</li>
+    <li>You must comply with AWS's Terms of Service and acceptable use policies</li>
+    <li>You are responsible for any AWS API costs incurred through use of this Add-on</li>
+    <li>You are responsible for any decisions made based on the cost data displayed</li>
+    <li>We recommend using a dedicated IAM user with minimum required permissions</li>
+  </ul>
+
+  <h2>5. AWS Cost Explorer Charges</h2>
+  <p>AWS charges <strong>$0.01 per API request</strong> to the Cost Explorer API. Each sync typically makes 2 API calls. These charges are billed directly by AWS to your account and are separate from this Add-on, which is free of charge.</p>
+
+  <h2>6. Data and Privacy</h2>
+  <p>Your use of the Service is also governed by our <a href="privacy.html">Privacy Policy</a>. We do not collect, store, or share your AWS credentials or billing data on any external servers.</p>
+
+  <h2>7. Disclaimer of Warranties</h2>
+  <p>The Service is provided "as is" without warranties of any kind, including but not limited to:</p>
+  <ul>
+    <li>Accuracy or completeness of the cost data displayed</li>
+    <li>Uninterrupted or error-free operation</li>
+    <li>Fitness for financial planning or budgeting decisions</li>
+  </ul>
+  <p>Cost data is sourced from AWS Cost Explorer and reflects AWS's reported figures. Always verify billing information directly in the AWS Console.</p>
+
+  <h2>8. Limitation of Liability</h2>
+  <p>In no event shall AWS Cost Health be liable for any indirect, incidental, special, or consequential damages resulting from your use of the Service, including but not limited to financial losses arising from inaccurate cost data or missed billing anomalies.</p>
+
+  <h2>9. AWS Dependency</h2>
+  <p>The Service depends on AWS Cost Explorer API availability. We are not responsible for outages, rate limiting, pricing changes, or API modifications made by Amazon Web Services that may affect functionality.</p>
+
+  <h2>10. Modifications</h2>
+  <p>We reserve the right to modify or discontinue the Service at any time without notice.</p>
+
+  <h2>11. Termination</h2>
+  <p>You may stop using the Service at any time by disconnecting and uninstalling the Add-on.</p>
+
+  <h2>12. Changes to Terms</h2>
+  <p>We reserve the right to update these Terms at any time. Changes will be posted on this page with an updated date.</p>
+
+  <h2>13. Contact</h2>
+  <p>For questions about these Terms: <a href="mailto:ajaypadwal73@gmail.com">ajaypadwal73@gmail.com</a></p>
+</div>
+
+<footer>
+  <span>© 2025 AWS Cost Health. Built by <a href="https://github.com/ajaypadwal73">@ajaypadwal73</a>.</span>
+  <div style="display:flex;gap:24px;">
+    <a href="/">Home</a>
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="mailto:ajaypadwal73@gmail.com">Contact</a>
+  </div>
+</footer>
+
+</body>
+</html>
